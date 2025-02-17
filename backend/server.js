@@ -1,44 +1,47 @@
-// Importation des modules
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const dotenv = require("dotenv");
+const http = require('http');
+const app = require('./app');
 
-// Charger les variables d'environnement
-// Charger les variables d'environnement
-dotenv.config({ path: "./.env" });
-console.log("MONGO_URI:", process.env.MONGO_URI); // Ajoute ceci pour voir si la variable est bien chargée
+const normalizePort = val => {
+  const port = parseInt(val, 10);
 
-// Initialisation d'Express
-const app = express();
+  if (isNaN(port)) {
+    return val;
+  }
+  if (port >= 0) {
+    return port;
+  }
+  return false;
+};
+const port = normalizePort(process.env.PORT ||'3001');
+app.set('port', port);
 
-// Middleware pour parser le JSON
-app.use(express.json());
+const errorHandler = error => {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+  const address = server.address();
+  const bind = typeof address === 'string' ? 'pipe ' + address : 'port: ' + port;
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges.');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use.');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+};
 
-// Activation de CORS (évite les erreurs de sécurité)
-app.use(cors());
+const server = http.createServer(app);
 
-// Route de test pour vérifier que le serveur fonctionne
-app.get('/', (req, res) => {
-  res.send('API Mon Vieux Grimoire est en ligne !');
+server.on('error', errorHandler);
+server.on('listening', () => {
+  const address = server.address();
+  const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port;
+  console.log('Listening on ' + bind);
 });
 
-// Connexion à la base de données MongoDB
-mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('✅ Connexion MongoDB réussie !');
-    // Importation des modèles après la connexion à MongoDB
-    const User = require("./models/User");
-    const Book = require("./models/Book");
-
-    console.log("✅ Modèles User et Book chargés !");
-
-  })
-  .catch((err) => console.error('❌ Erreur de connexion MongoDB :', err));
-
-// Lancement du serveur
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur en ligne sur http://localhost:${PORT}`);
-});
+server.listen(port);

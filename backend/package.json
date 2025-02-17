@@ -3,17 +3,26 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "alxmsa",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.10.0",
+    "mongoose": "^7.8.6",
     "mongoose-unique-validator": "^4.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alxmsa/mon_vieux_grimoire.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alxmsa/mon_vieux_grimoire/issues"
+  },
+  "homepage": "https://github.com/alxmsa/mon_vieux_grimoire#readme",
+  "description": ""
 }
