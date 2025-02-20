@@ -25,7 +25,13 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+app.use('/images', express.static('images'));
+
 app.use('/api/books', bookRoutes);
 app.use('/api/auth', userRoutes);
+
+app.get('/', (req, res) => {
+  res.send('Bienvenue sur l\'API Mon Vieux Grimoire !');
+});
 
 module.exports = app;
