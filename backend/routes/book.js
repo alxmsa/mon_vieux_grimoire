@@ -7,8 +7,8 @@ const bookCtrl = require('../controllers/book');
 
 const multer = require('../middleware/multer-config');
 
-// requete post à confirmer apres avoir fait l'authentification
 router.post('/', auth, multer, bookCtrl.createBook);
+router.get('/bestrating', bookCtrl.bestBooks);
 router.put('/:id', auth, bookCtrl.modifyBook);
 router.delete('/:id', auth, bookCtrl.deleteBook);
 router.get('/:id', bookCtrl.getOneBook);

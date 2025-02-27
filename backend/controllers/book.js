@@ -72,3 +72,12 @@ exports.rateBook = (req, res) => {
     })
     .catch((error) => res.status(500).json({ error }));
 };
+
+exports.bestBooks = (req, res) => {
+  Book.find()
+    .sort({ averageRating: -1 }) 
+    // 🔹 Trie par `averageRating` en ordre décroissant (du + grand au + petit)
+    .limit(3) // 🔹 Garde seulement les 3 premiers résultats
+    .then((books) => res.status(200).json(books)) // 🔹 Renvoie les livres sous forme JSON
+    .catch((error) => res.status(400).json({ error }));
+};
