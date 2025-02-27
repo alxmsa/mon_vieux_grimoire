@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
@@ -29,6 +30,7 @@ app.use('/images', express.static('images'));
 
 app.use('/api/books', bookRoutes);
 app.use('/api/auth', userRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.get('/', (req, res) => {
   res.send('Bienvenue sur l\'API Mon Vieux Grimoire !');
