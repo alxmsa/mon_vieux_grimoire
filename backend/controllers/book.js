@@ -40,3 +40,35 @@ exports.getAllBooks = (req, res) => {
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
+
+exports.rateBook = (req, res) => {
+  const { rating } = req.body; // La note envoyée par l'utilisateur (ex: { "rating": 4 })
+  const userId = req.auth.userId; // L'utilisateur connecté qui note le livre
+
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({ message: 'Livre non trouvé !' });
+      }
+
+      // Vérifier si l'utilisateur a déjà noté ce livre
+      const existingRating = book.ratings.find(r => r.userId === userId);
+      if (existingRating) {
+        return res.status(400).json({ message: 'Vous avez déjà noté ce livre.' });
+      }
+
+      // Ajouter la nouvelle note dans le tableau `ratings`
+      book.ratings.push({ userId, grade: rating });
+
+      // Recalculer `averageRating`
+      const totalRatings = book.ratings.length;
+      const sumRatings = book.ratings.reduce((sum, r) => sum + r.grade, 0);
+      book.averageRating = (sumRatings / totalRatings).toFixed(1); // Arrondi à 1 décimale
+
+      // Sauvegarder les modifications
+      book.save()
+        .then(() => res.status(200).json(book))
+        .catch((error) => res.status(400).json({ error }));
+    })
+    .catch((error) => res.status(500).json({ error }));
+};
