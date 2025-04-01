@@ -75,7 +75,7 @@ exports.rateBook = (req, res) => {
 
 exports.bestBooks = (req, res) => {
   Book.find()
-    .sort({ averageRating: -1 }) 
+    .sort({ averageRating: -1 })
     // 🔹 Trie par `averageRating` en ordre décroissant (du + grand au + petit)
     .limit(3) // 🔹 Garde seulement les 3 premiers résultats
     .then((books) => res.status(200).json(books)) // 🔹 Renvoie les livres sous forme JSON
