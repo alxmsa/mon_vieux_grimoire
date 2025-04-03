@@ -36,7 +36,6 @@ exports.login = (req, res) => {
             process.env.RANDOM_TOKEN_SECRET, // Clé secrète (à stocker dans .env)
             { expiresIn: '24h' }
           );
-          console.log('✅ Token généré :', token);
           return res.status(200).json({
             userId: user._id,
             token: token
