@@ -3,7 +3,7 @@ const sharp = require('sharp');
 const fs = require ('fs');
 const path = require('path');
 
-const createBook = (req, res) => {
+exports.createBook = (req, res) => {
   try {
     const bookObject = JSON.parse(req.body.book);
     delete bookObject._id;
@@ -14,16 +14,20 @@ const createBook = (req, res) => {
     const inputPath = `images/${req.file.filename}`;
     const outputPath = `images/${optimizedFilename}`;
 
-    if (!fs.existsSync(inputPath)) {
-      return res.status(400).json({ message: 'Image introuvable après upload.' });
-    }
+    console.log('📁 Fichier reçu (multer) :', req.file);
 
     sharp(inputPath)
       .resize({ width: 800 })
       .webp({ quality: 70 })
       .toFile(outputPath)
       .then(() => {
-        fs.unlink(inputPath, () => {
+        console.log('✅ Conversion SHARP exécutée vers :', outputPath);
+
+        // Supprimer l’image originale
+        fs.unlink(inputPath, (err) => {
+          if (err) {
+            console.warn('⚠️ Impossible de supprimer l’image originale :', err);
+          }
         });
 
         const book = new Book({
@@ -34,106 +38,50 @@ const createBook = (req, res) => {
 
         book.save()
           .then(() => {
+            console.log('📚 Livre enregistré avec succès !');
             res.status(201).json({ message: 'Livre enregistré !' });
           })
           .catch((error) => {
+            console.error('❌ Erreur lors de la sauvegarde du livre :', error);
             res.status(400).json({ error });
           });
       })
       .catch((err) => {
+        console.error('❌ Erreur SHARP :', err.message);
         res.status(500).json({ message: 'Erreur lors du traitement de l’image.', error: err.message });
       });
+
   } catch (error) {
+    console.error('❌ Erreur parsing ou structure JSON :', error.message);
     res.status(400).json({ message: 'Données du livre invalides.', error: error.message });
   }
 };
 
-const modifyBook = (req, res, next) => {
-  const bookId = req.params.id;
-
-  // pas de nouvelle image → update direct
-  if (!req.file) {
-    const updateData = { ...req.body, _id: bookId };
-
-    Book.updateOne({ _id: bookId }, updateData)
-      .then(() => res.status(200).json({ message: 'Modifié sans image' }))
-      .catch((error) => res.status(400).json(error));
-    return;
-  }
-
-  // modif AVEC image → sharp + suppression ancienne
-
-  const originalName = path.parse(req.file.filename).name;
-  const optimizedFilename = `optimized_${originalName}.webp`;
-  const inputPath = `images/${req.file.filename}`;
-  const outputPath = `images/${optimizedFilename}`;
-
-  Book.findOne({ _id: bookId })
-    .then((book) => {
-      if (!book) return res.status(404).json({ message: 'Livre non trouvé' });
-
-      const oldImage = book.imageUrl?.split('/images/')[1];
-      if (oldImage) {
-        fs.unlink(`images/${oldImage}`, (err) => {
-          if (err) console.warn('⚠️ Suppression ancienne image échouée :', err.message);
-        });
-      }
-
-      sharp(inputPath)
-        .resize({ width: 800 })
-        .webp({ quality: 70 })
-        .toFile(outputPath)
-        .then(() => {
-          fs.unlink(inputPath, (err) => {
-            if (err) console.warn('⚠️ Suppression image temporaire échouée :', err.message);
-          });
-
-          const newImageUrl = `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`;
-          const bookObject = JSON.parse(req.body.book);
-
-          const updateData = {
-            ...bookObject,
-            imageUrl: newImageUrl,
-            _id: bookId,
-          };
-
-          Book.updateOne({ _id: bookId }, updateData)
-            .then(() => res.status(200).json({ message: 'Modifié avec image' }))
-            .catch((error) => {
-              console.error('❌ Erreur updateOne :', error);
-              res.status(400).json(error);
-            });
-        })
-        .catch((error) => {
-          console.error('❌ Erreur Sharp :', error.message);
-          res.status(500).json({ message: 'Erreur traitement image', error: error.message });
-        });
-    })
-    .catch((error) => {
-      console.error('❌ Erreur findOne :', error.message);
-      res.status(500).json({ message: 'Erreur récupération du livre', error: error.message });
-    });
+exports.modifyBook = (req, res) => {
+  Book.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
+    .then(() => res.status(200).json({ message: 'Livre modifié !' }))
+    .catch((error) => res.status(400).json({ error }));
 };
 
-const deleteBook = (req, res) => {
+exports.deleteBook = (req, res) => {
   Book.deleteOne({ _id: req.params.id })
     .then(() => res.status(200).json({ message: 'Livre supprimé !' }))
     .catch((error) => res.status(400).json({ error }));
 };
 
-const getOneBook = (req, res) => {
+exports.getOneBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => res.status(200).json(book))
     .catch((error) => res.status(404).json({ error }));
 };
 
-const getAllBooks = (req, res) => {
+exports.getAllBooks = (req, res) => {
   Book.find()
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
 
-const rateBook = (req, res) => {
+exports.rateBook = (req, res) => {
   const { rating } = req.body; // La note envoyée par l'utilisateur (ex: { "rating": 4 })
   const userId = req.auth.userId; // L'utilisateur connecté qui note le livre
 
@@ -165,21 +113,11 @@ const rateBook = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-const bestBooks = (req, res) => {
+exports.bestBooks = (req, res) => {
   Book.find()
     .sort({ averageRating: -1 })
     // 🔹 Trie par `averageRating` en ordre décroissant (du + grand au + petit)
     .limit(3) // 🔹 Garde seulement les 3 premiers résultats
     .then((books) => res.status(200).json(books)) // 🔹 Renvoie les livres sous forme JSON
     .catch((error) => res.status(400).json({ error }));
-};
-
-module.exports = {
-  createBook,
-  modifyBook,
-  deleteBook,
-  getOneBook,
-  getAllBooks,
-  rateBook,
-  bestBooks,
 };

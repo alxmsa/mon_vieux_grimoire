@@ -33,7 +33,7 @@ exports.login = (req, res) => {
           // Génération du Token JWT
           const token = jwt.sign(
             { userId: user._id },
-            process.env.RANDOM_TOKEN_SECRET,  // Clé secrète (à stocker dans .env)
+            process.env.RANDOM_TOKEN_SECRET, // Clé secrète (à stocker dans .env)
             { expiresIn: '24h' }
           );
           console.log('✅ Token généré :', token);

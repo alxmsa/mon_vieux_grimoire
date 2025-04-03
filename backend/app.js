@@ -26,8 +26,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-app.use('/images', express.static('images'));
-
 app.use('/api/books', bookRoutes);
 app.use('/api/auth', userRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
