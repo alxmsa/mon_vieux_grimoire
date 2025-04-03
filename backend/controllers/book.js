@@ -116,10 +116,46 @@ const modifyBook = (req, res, next) => {
 };
 
 const deleteBook = (req, res) => {
-  Book.deleteOne({ _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'Livre supprimé !' }))
-    .catch((error) => res.status(400).json({ error }));
+  console.log('🧨 Suppression demandée pour le livre :', req.params.id);
+
+  Book.findOne({ _id: req.params.id })
+    .then(book => {
+      if (!book) {
+        console.log('❌ Livre introuvable');
+        return res.status(404).json({ message: 'Livre non trouvé' });
+      }
+
+      console.log('📘 Livre trouvé :', book.title);
+      console.log('🖼️ URL image à supprimer :', book.imageUrl);
+
+      const filename = book.imageUrl.split('/images/')[1];
+
+      console.log('🧾 Nom du fichier à supprimer :', filename);
+
+      fs.unlink(`images/${filename}`, (err) => {
+        if (err) {
+          console.warn('⚠️ Erreur suppression image :', err.message);
+        } else {
+          console.log('✅ Image supprimée avec succès !');
+        }
+
+        Book.deleteOne({ _id: req.params.id })
+          .then(() => {
+            console.log('✅ Livre supprimé de la base');
+            res.status(200).json({ message: 'Livre et image supprimés !' });
+          })
+          .catch((error) => {
+            console.error('❌ Erreur suppression en base :', error);
+            res.status(400).json({ error });
+          });
+      });
+    })
+    .catch(error => {
+      console.error('❌ Erreur findOne :', error);
+      res.status(500).json({ error });
+    });
 };
+
 
 const getOneBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
