@@ -1,3 +1,5 @@
+// fichier config principal
+// Importation des modules
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -24,6 +26,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// On parser le corps des requetes json
 app.use(express.json());
 
 app.use('/api/books', bookRoutes);
