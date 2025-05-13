@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/mon_vieux_grimoire/static/css/main.aefc5a44.css",
-    "main.js": "/mon_vieux_grimoire/static/js/main.233c13db.js",
+    "main.js": "/mon_vieux_grimoire/static/js/main.03d69ecd.js",
     "static/js/787.2c0e5b38.chunk.js": "/mon_vieux_grimoire/static/js/787.2c0e5b38.chunk.js",
     "static/media/home_banner.jpg": "/mon_vieux_grimoire/static/media/home_banner.e160219c56381f5d72be.jpg",
     "static/media/book_delete.png": "/mon_vieux_grimoire/static/media/book_delete.f0aec92a2dde895664ec.png",
@@ -10,11 +10,11 @@
     "static/media/map_footer.png": "/mon_vieux_grimoire/static/media/map_footer.a4eb4130dd9828775917.png",
     "index.html": "/mon_vieux_grimoire/index.html",
     "main.aefc5a44.css.map": "/mon_vieux_grimoire/static/css/main.aefc5a44.css.map",
-    "main.233c13db.js.map": "/mon_vieux_grimoire/static/js/main.233c13db.js.map",
+    "main.03d69ecd.js.map": "/mon_vieux_grimoire/static/js/main.03d69ecd.js.map",
     "787.2c0e5b38.chunk.js.map": "/mon_vieux_grimoire/static/js/787.2c0e5b38.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.aefc5a44.css",
-    "static/js/main.233c13db.js"
+    "static/js/main.03d69ecd.js"
   ]
 }
